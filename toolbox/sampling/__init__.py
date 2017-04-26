@@ -25,6 +25,10 @@ def mask_bbox(mask):
     return np.min(yinds), np.max(yinds), np.min(xinds), np.max(xinds)
 
 
+def crop_bbox(image, bbox):
+    return image[bbox[0]:bbox[1], bbox[2]:bbox[3]]
+
+
 def sample_poisson_mask(mask, r, k):
     ymin, ymax, xmin, xmax = mask_bbox(mask)
     height = ymax - ymin
