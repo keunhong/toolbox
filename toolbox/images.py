@@ -156,6 +156,12 @@ def imsave(path, array):
     misc.toimage(array, cmin=0, cmax=1.0).save(path)
 
 
+def imread(path):
+    image = misc.imread(path, mode='RGB')
+    image = image.astype(dtype=np.float32) / 255.0
+    return image
+
+
 def reinhard(image_hdr, thres):
     return image_hdr * (1 + image_hdr / thres ** 2) / (1 + image_hdr)
 
