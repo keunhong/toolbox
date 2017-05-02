@@ -15,6 +15,14 @@ logger = logging.getLogger(__name__)
 BoundingBox = Tuple[int, int, int, int]
 
 
+def is_img(path):
+    img_types = ['png', 'tiff', 'tif', 'jpg', 'gif', 'jpeg']
+    for t in img_types:
+        if path.lower().endswith(t):
+            return True
+    return False
+
+
 def compute_segment_median_colors(image: np.ndarray, segment_mask: np.ndarray):
     num_segments = sum((1 for i in np.unique(segment_mask) if i >= 0))
 

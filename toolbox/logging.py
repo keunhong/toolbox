@@ -9,7 +9,7 @@ _logger_set = False
 def init_logger(name):
     global _logger_set
     if _logger_set:
-        return logging.getLogger(__name__)
+        return logging.getLogger(name)
     _logger_set = True
     LOG_LEVEL = logging.INFO
     formatter = logging.Formatter(LOG_FORMAT, LOG_TIME_FORMAT)
