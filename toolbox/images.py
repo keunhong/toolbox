@@ -156,7 +156,7 @@ def resize(array, shape, order=2):
     return output
 
 
-def imsave(path, array):
+def save_image(path, array):
     if array.dtype == np.uint8:
         array = array.astype(dtype=float)
         array /= 255.0
@@ -164,7 +164,7 @@ def imsave(path, array):
     misc.toimage(array, cmin=0, cmax=1.0).save(path)
 
 
-def imread(path):
+def load_image(path):
     image = misc.imread(path, mode='RGB')
     image = image.astype(dtype=np.float32) / 255.0
     return image
