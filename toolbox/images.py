@@ -179,3 +179,57 @@ def reinhard_inverse(image_ldr, thres):
     Ld = image_ldr
     rt = np.sqrt(Lw) * np.sqrt(Lw * (Ld - 1)**2 + 4 * Ld)
     return Lw * (Ld - 1) + rt
+
+
+def bright_pixel_mask(image, percentile=80):
+    perc = np.percentile(np.unique(image.mean(axis=2)), percentile)
+    mask = np.all(image < perc, axis=-1)
+    return mask
+
+
+def compute_fg_bbox(image):
+    bbox = mask_bbox(bright_pixel_mask(image))
+    return bbox
+
+
+def crop_tight_fg(image, shape=None, bbox=None, fill_value=1.0, order=3):
+    if bbox is None:
+        bbox = compute_fg_bbox(image)
+
+    height, width = image.shape[:2]
+    max_len = max(height, width)
+    if shape is None:
+        shape = (max_len, max_len)
+
+    image = crop_bbox(image, bbox)
+
+    output_shape = (max_len, max_len)
+    if len(image.shape) > 2:
+        output_shape += (image.shape[-1],)
+    output = np.full(output_shape, fill_value, dtype=image.dtype)
+    if height > width:
+        lo = (height - width) // 2
+        output[:, lo:lo + width] = image
+    else:
+        lo = (width - height) // 2
+        output[lo:lo + height, :] = image
+    output = resize(output, shape, order=order)
+    output = np.clip(output, image.min(), image.max())
+    return output.squeeze()
+
+
+def save_arr(path, arr):
+    np.savez(path, arr)
+
+
+def load_arr(path):
+    return np.load(path)['arr_0'][()]
+
+
+def crop_bbox(image, bbox):
+    return image[bbox[0]:bbox[1], bbox[2]:bbox[3]]
+
+
+def mask_bbox(mask):
+    yinds, xinds = np.where(mask)
+    return np.min(yinds), np.max(yinds), np.min(xinds), np.max(xinds)

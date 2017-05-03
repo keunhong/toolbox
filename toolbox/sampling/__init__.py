@@ -7,7 +7,7 @@ from scipy.misc import imresize
 from scipy.ndimage import zoom
 
 from toolbox import images
-from toolbox.images import crop
+from toolbox.images import crop, mask_bbox
 from .poisson_disk import sample_poisson_uniform
 
 logger = logging.getLogger(__name__)
@@ -18,15 +18,6 @@ class PatchType:
     S2F_MASKED_WHITE = 'cropped_scaled_to_fit_white'
     S2F = 'scaled_to_fit'
     RANDOM = 'random2'
-
-
-def mask_bbox(mask):
-    yinds, xinds = np.where(mask)
-    return np.min(yinds), np.max(yinds), np.min(xinds), np.max(xinds)
-
-
-def crop_bbox(image, bbox):
-    return image[bbox[0]:bbox[1], bbox[2]:bbox[3]]
 
 
 def sample_poisson_mask(mask, r, k):
