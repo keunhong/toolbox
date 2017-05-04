@@ -182,7 +182,7 @@ def reinhard_inverse(image_ldr, thres):
 
 
 def bright_pixel_mask(image, percentile=80):
-    perc = np.percentile(np.unique(image.mean(axis=2)), percentile)
+    perc = np.percentile(np.unique(image[:, :, :3].min(axis=2)), percentile)
     mask = np.all(image < perc, axis=-1)
     return mask
 
@@ -195,13 +195,12 @@ def compute_fg_bbox(image):
 def crop_tight_fg(image, shape=None, bbox=None, fill_value=1.0, order=3):
     if bbox is None:
         bbox = compute_fg_bbox(image)
+    image = crop_bbox(image, bbox)
 
     height, width = image.shape[:2]
     max_len = max(height, width)
     if shape is None:
         shape = (max_len, max_len)
-
-    image = crop_bbox(image, bbox)
 
     output_shape = (max_len, max_len)
     if len(image.shape) > 2:
