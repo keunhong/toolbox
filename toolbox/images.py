@@ -143,8 +143,8 @@ def resize(array, shape, order=2):
     if isinstance(shape, float):
         scales = (shape, shape, 1)
     elif isinstance(shape, tuple):
-        scales = (shape[0] / array.shape[0],
-                  shape[1] / array.shape[1], 1)
+        scales = (round(shape[0] / array.shape[0]),
+                  round(shape[1] / array.shape[1]), 1)
     else:
         raise RuntimeError("shape must be tuple or float.")
 
