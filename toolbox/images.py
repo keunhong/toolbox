@@ -14,6 +14,21 @@ logger = logging.getLogger(__name__)
 
 BoundingBox = Tuple[int, int, int, int]
 
+QUAL_COLORS = [
+    (166, 206, 227),
+    (31, 120, 180),
+    (178, 223, 138),
+    (51, 160, 44),
+    (251, 154, 153),
+    (227, 26, 28),
+    (253, 191, 111),
+    (255, 127, 0),
+    (202, 178, 214),
+    (106, 61, 154),
+    (255, 255, 153),
+    (177, 89, 40),
+]
+
 
 def is_img(path):
     img_types = ['png', 'tiff', 'tif', 'jpg', 'gif', 'jpeg']
@@ -232,3 +247,15 @@ def crop_bbox(image, bbox):
 def mask_bbox(mask):
     yinds, xinds = np.where(mask)
     return np.min(yinds), np.max(yinds), np.min(xinds), np.max(xinds)
+
+
+def visualize_map(image, bg_value=-1):
+    assert len(image.shape) == 2
+    output = np.zeros((*image.shape, 3))
+    values = [v for v in np.unique(image) if v != bg_value]
+    for i, value in enumerate(values):
+        color = (np.array(QUAL_COLORS[i]) / 255.0
+                 if value != bg_value
+                 else (0, 0, 0))
+        output[image == value] = color
+    return output
