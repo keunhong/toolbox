@@ -207,6 +207,25 @@ def compute_fg_bbox(image):
     return bbox
 
 
+def bbox_shape(bbox):
+    return bbox[1] - bbox[0], bbox[3] - bbox[2]
+
+
+def bbox_centroid(bbox):
+    height, width = bbox_shape(bbox)
+    return bbox[0] + height / 2, bbox[2] + width / 2
+
+
+def bbox_make_square(bbox):
+    height, width = bbox_shape(bbox)
+    maxlen = max(height, width)
+    cy, cx = bbox_centroid(bbox)
+    bbox = (cy - maxlen / 2, cy + maxlen / 2,
+            cx - maxlen / 2, cx + maxlen / 2)
+    bbox = tuple(int(i) for i in bbox)
+    return bbox
+
+
 def crop_tight_fg(image, shape=None, bbox=None, fill_value=1.0, order=3):
     if bbox is None:
         bbox = compute_fg_bbox(image)
