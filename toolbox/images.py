@@ -176,11 +176,11 @@ def save_image(path, array):
         array = array.astype(dtype=float)
         array /= 255.0
     array = np.clip(array, 0.0, 1.0)
-    misc.toimage(array, cmin=0, cmax=1.0).save(path)
+    misc.imsave(path, array)
 
 
-def load_image(path):
-    image = misc.imread(path, mode='RGB')
+def load_image(path, mode='RGB'):
+    image = misc.imread(path, mode=mode)
     image = image.astype(dtype=np.float32) / 255.0
     return image
 
