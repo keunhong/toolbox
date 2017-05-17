@@ -6,6 +6,7 @@ LOG_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 _logger_set = False
 
+
 def init_logger(name):
     global _logger_set
     if _logger_set:
@@ -19,3 +20,7 @@ def init_logger(name):
     logger.addHandler(console)
     logger.setLevel(LOG_LEVEL)
     return logging.getLogger(name)
+
+
+def disable_logging(name):
+    logging.getLogger(name).setLevel(logging.ERROR)

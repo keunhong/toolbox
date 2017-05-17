@@ -33,7 +33,7 @@ QUAL_COLORS = [
 def is_img(path):
     img_types = ['png', 'tiff', 'tif', 'jpg', 'gif', 'jpeg']
     for t in img_types:
-        if path.lower().endswith(t):
+        if str(path).lower().endswith(t):
             return True
     return False
 
@@ -151,7 +151,7 @@ def suppress_outliers(image, thres=3.5, preserve_dark=True):
     return new_map
 
 
-def resize(array, shape, order=2):
+def resize(array, shape, order=3):
     if len(array.shape) != 2 and len(array.shape) != 3:
         raise RuntimeError("Input array must have 2 or 3 dimensions but {} "
                            "were given.".format(len(array.shape)))
@@ -226,7 +226,7 @@ def bbox_make_square(bbox):
     return bbox
 
 
-def crop_tight_fg(image, shape=None, bbox=None, fill_value=1.0, order=3):
+def crop_tight_fg(image, shape=None, bbox=None, fill=1.0, order=3):
     if bbox is None:
         bbox = compute_fg_bbox(image)
     image = crop_bbox(image, bbox)
@@ -239,7 +239,7 @@ def crop_tight_fg(image, shape=None, bbox=None, fill_value=1.0, order=3):
     output_shape = (max_len, max_len)
     if len(image.shape) > 2:
         output_shape += (image.shape[-1],)
-    output = np.full(output_shape, fill_value, dtype=image.dtype)
+    output = np.full(output_shape, fill, dtype=image.dtype)
     if height > width:
         lo = (height - width) // 2
         output[:, lo:lo + width] = image
