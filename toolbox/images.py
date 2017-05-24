@@ -1,5 +1,6 @@
 import logging
 import math
+from pathlib import Path
 from typing import Tuple
 
 import numpy as np
@@ -7,6 +8,7 @@ from scipy import misc
 from scipy.ndimage.interpolation import zoom
 from skimage import transform
 
+from rendkit import pfm
 from toolbox.stats import find_outliers
 
 logger = logging.getLogger(__name__)
@@ -257,6 +259,32 @@ def save_arr(path, arr):
 
 def load_arr(path):
     return np.load(path)['arr_0'][()]
+
+
+def save_hdr(path: Path, image, fmt='exr'):
+    if fmt == 'exr':
+        import cv2
+        if len(image.shape) == 3:
+            image = image[:, :, [2, 1, 0]]
+        cv2.imwrite(str(path), image)
+    elif fmt == 'pfm':
+        pfm.pfm_save(str(path))
+    else:
+        raise RuntimeError("Unknown format {}".format(fmt))
+
+
+def load_hdr(path: Path):
+    ext = path.suffix[1:]
+    if ext == 'exr':
+        import cv2
+        im = cv2.imread(str(path), -1)
+        if len(im.shape) == 3:
+            im = im[:, :, [2, 1, 0]]
+    elif ext == 'pfm':
+        im = pfm.pfm_read(path)
+    else:
+        raise RuntimeError("Unknown format {}".format(ext))
+    return im
 
 
 def crop_bbox(image, bbox):
