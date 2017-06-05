@@ -3,6 +3,7 @@ import math
 from pathlib import Path
 from typing import Tuple
 
+import cv2
 import numpy as np
 from scipy import misc
 from scipy.ndimage.interpolation import zoom
@@ -177,7 +178,7 @@ def save_image(path, array):
     if array.dtype == np.uint8:
         array = array.astype(dtype=float)
         array /= 255.0
-    array = np.clip(array, 0.0, 1.0)
+    array = np.round(np.clip(array, 0.0, 1.0) * 255.0).astype(dtype=np.uint8)
     misc.imsave(path, array)
 
 
@@ -261,20 +262,21 @@ def load_arr(path):
     return np.load(path)['arr_0'][()]
 
 
-def save_hdr(path: Path, image, fmt='exr'):
-    if fmt == 'exr':
-        import cv2
+def save_hdr(path: Path, image):
+    ext = path.suffix[1:]
+    if ext == 'exr':
         if len(image.shape) == 3:
             image = image[:, :, [2, 1, 0]]
         cv2.imwrite(str(path), image)
-    elif fmt == 'pfm':
+    elif ext == 'pfm':
         pfm.pfm_save(str(path))
     else:
-        raise RuntimeError("Unknown format {}".format(fmt))
+        raise RuntimeError("Unknown format {}".format(ext))
 
 
-def load_hdr(path: Path):
-    ext = path.suffix[1:]
+def load_hdr(path: Path, ext=None):
+    if ext is None:
+        ext = path.suffix[1:]
     if ext == 'exr':
         import cv2
         im = cv2.imread(str(path), -1)
