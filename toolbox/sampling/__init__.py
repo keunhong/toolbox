@@ -105,6 +105,7 @@ def generate_random_bboxes(mask: np.ndarray, scale_range=(1.0, 1.0),
 
     patch_bboxes = []
     patch_scales = []
+    tries = 0
     while len(patch_bboxes) < num_patches:
         scale = random.uniform(*scale_range)
         patch_scales.append(scale)
@@ -114,14 +115,15 @@ def generate_random_bboxes(mask: np.ndarray, scale_range=(1.0, 1.0),
         half = int(patch_size / 2)
 
         # Just squash the patch if it's out of bounds.
-        # if (ycent - half < 0 or ycent + half > mask.shape[0] or
-        #     xcent - half < 0 or xcent + half > mask.shape[1]):
-        #     continue
+        if (ycent - half < 0 or ycent + half > mask.shape[0] or
+            xcent - half < 0 or xcent + half > mask.shape[1]):
+            if tries < 100:
+                continue
+
         bbox = (max(ycent - half, 0),
                 min(ycent + half + 1, mask.shape[0]),
                 max(xcent - half, 0),
                 min(xcent + half + 1, mask.shape[1]))
-
         patch_bboxes.append(bbox)
 
     return patch_bboxes, patch_scales
