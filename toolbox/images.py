@@ -6,6 +6,7 @@ from typing import Tuple
 import cv2
 import numpy as np
 from scipy import misc
+from scipy.misc import imresize
 from scipy.ndimage.interpolation import zoom
 from skimage import transform
 
@@ -229,7 +230,8 @@ def bbox_make_square(bbox):
     return bbox
 
 
-def crop_tight_fg(image, shape=None, bbox=None, fill=1.0, order=3):
+def crop_tight_fg(image, shape=None, bbox=None, fill=1.0, order=3,
+                  use_pil=False):
     if bbox is None:
         bbox = compute_fg_bbox(image)
     image = crop_bbox(image, bbox)
@@ -249,7 +251,10 @@ def crop_tight_fg(image, shape=None, bbox=None, fill=1.0, order=3):
     else:
         lo = (width - height) // 2
         output[lo:lo + height, :] = image
-    output = resize(output, shape, order=order)
+    if use_pil:
+        output = imresize(output, shape).astype(dtype=np.float32) / 255.0
+    else:
+        output = resize(output, shape, order=order)
     output = np.clip(output, image.min(), image.max())
     return output.squeeze()
 
@@ -263,6 +268,8 @@ def load_arr(path):
 
 
 def save_hdr(path: Path, image):
+    if isinstance(path, str):
+        path = Path(path)
     ext = path.suffix[1:]
     if ext == 'exr':
         if len(image.shape) == 3:
