@@ -118,6 +118,7 @@ def generate_random_bboxes(mask: np.ndarray, scale_range=(1.0, 1.0),
         if (ycent - half < 0 or ycent + half > mask.shape[0] or
             xcent - half < 0 or xcent + half > mask.shape[1]):
             if tries < 100:
+                tries += 1
                 continue
 
         bbox = (max(ycent - half, 0),
