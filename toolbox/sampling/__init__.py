@@ -132,7 +132,7 @@ def generate_random_bboxes(mask: np.ndarray, scale_range=(1.0, 1.0),
 
 def bboxes_to_patches(im: np.ndarray,
                       bboxes: List[Tuple[int, int, int, int]],
-                      patch_size: int):
+                      patch_size: int, use_pil=False):
     """
     Converts bounding boxes to actual patches. Patches are all resized to the
     patch size regardless of the original bounding box size.
@@ -148,7 +148,11 @@ def bboxes_to_patches(im: np.ndarray,
             scale = [patch_size/cropped.shape[0], patch_size/cropped.shape[1]]
             if len(im.shape) == 3:
                 scale.append(1.0)
-            cropped = zoom(cropped, scale, im.dtype, order=1)
+            if use_pil:
+                cropped = imresize(cropped, (patch_size, patch_size))\
+                              .astype(dtype=np.float32) / 255.0
+            else:
+                cropped = zoom(cropped, scale, im.dtype, order=1)
         patches.append(cropped)
     return patches
 
