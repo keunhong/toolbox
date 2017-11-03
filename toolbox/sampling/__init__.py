@@ -3,7 +3,7 @@ import random
 from typing import List, Tuple
 
 import numpy as np
-from scipy.misc import imresize
+from skimage.transform import resize
 from scipy.ndimage import zoom
 
 from toolbox import images
@@ -149,8 +149,8 @@ def bboxes_to_patches(im: np.ndarray,
             if len(im.shape) == 3:
                 scale.append(1.0)
             if use_pil:
-                cropped = imresize(cropped, (patch_size, patch_size))\
-                              .astype(dtype=np.float32) / 255.0
+                cropped = resize(cropped, (patch_size, patch_size)) \
+                              .astype(dtype=np.float32)
             else:
                 cropped = zoom(cropped, scale, im.dtype, order=1)
         patches.append(cropped)
