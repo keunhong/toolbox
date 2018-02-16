@@ -5,9 +5,11 @@ from typing import Tuple
 
 import cv2
 import numpy as np
+import skimage
 from scipy import misc
 from scipy.misc import imresize
 from scipy.ndimage.interpolation import zoom
+from scipy.stats import wasserstein_distance
 from skimage import transform
 
 from rendkit import pfm
@@ -172,7 +174,7 @@ def resize(array, shape, order=3):
         scales = scales[:2]
     output = zoom(array, scales, order=order)
     output = output.astype(dtype=array.dtype)
-    return output
+    return output.clip(array.min(), array.max())
 
 
 def save_image(path, array):
@@ -252,7 +254,9 @@ def crop_tight_fg(image, shape=None, bbox=None, fill=1.0, order=3,
         lo = (width - height) // 2
         output[lo:lo + height, :] = image
     if use_pil:
-        output = imresize(output, shape).astype(dtype=np.float32) / 255.0
+        output = transform.resize(output, shape, anti_aliasing=True,
+                                  preserve_range=True,
+                                  mode='constant', cval=fill)
     else:
         output = resize(output, shape, order=order)
     output = np.clip(output, image.min(), image.max())
@@ -315,3 +319,16 @@ def visualize_map(image, bg_value=-1):
                  else (0, 0, 0))
         output[image == value] = color
     return output
+
+
+def compute_color_histogram(pixels, n_bins=256, normalized=True):
+    r_hist, _ = np.histogram(pixels[:, 0], bins=n_bins, density=normalized)
+    g_hist, _ = np.histogram(pixels[:, 1], bins=n_bins, density=normalized)
+    b_hist, _ = np.histogram(pixels[:, 2], bins=n_bins, density=normalized)
+    return np.stack((r_hist, g_hist, b_hist))
+
+
+def color_wasserstein_dist(hist1, hist2):
+    weights = [0.2, 0.4, 0.4]
+    return sum(w * wasserstein_distance(hist1[i], hist2[i]) for i, w in
+               zip([0, 1, 2], weights))
