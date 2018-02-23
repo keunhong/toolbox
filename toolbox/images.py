@@ -286,9 +286,12 @@ def save_hdr(path: Path, image):
 
 
 def load_hdr(path: Path, ext=None):
+    if isinstance(path, str):
+        path = Path(path)
+
     if ext is None:
         ext = path.suffix[1:]
-    if ext == 'exr':
+    if ext in {'exr', 'hdr'}:
         import cv2
         im = cv2.imread(str(path), -1)
         if len(im.shape) == 3:
