@@ -335,3 +335,21 @@ def color_wasserstein_dist(hist1, hist2):
     weights = [0.2, 0.4, 0.4]
     return sum(w * wasserstein_distance(hist1[i], hist2[i]) for i, w in
                zip([0, 1, 2], weights))
+
+
+def linear_to_srgb(linear):
+    srgb = linear.copy()
+    less = linear <= 0.0031308
+    srgb[less] = linear[less] * 12.92
+    srgb[~less] = 1.055 * np.power(linear[~less], 1.0 / 2.4) - 0.055
+    return srgb
+
+
+def srgb_to_linear(srgb):
+    if srgb.dtype == np.uint8:
+        srgb = np.float32(srgb) / 255.0
+    linear = srgb
+    less = linear <= 0.4045
+    linear[less] = linear[less] / 12.92
+    linear[~less] = np.power((linear[~less] + 0.055) / 1.055, 2.4)
+    return linear
