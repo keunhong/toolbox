@@ -314,7 +314,7 @@ def mask_bbox(mask):
 
 def visualize_map(image, bg_value=-1):
     assert len(image.shape) == 2
-    output = np.zeros((*image.shape, 3))
+    output = np.ones((*image.shape, 3))
     values = [v for v in np.unique(image) if v != bg_value]
     for i, value in enumerate(values):
         color = (np.array(QUAL_COLORS[i]) / 255.0
@@ -353,3 +353,8 @@ def srgb_to_linear(srgb):
     linear[less] = linear[less] / 12.92
     linear[~less] = np.power((linear[~less] + 0.055) / 1.055, 2.4)
     return linear
+
+
+def to_8bit(image):
+    return np.clip(image * 255, 0, 255).astype('uint8')
+
