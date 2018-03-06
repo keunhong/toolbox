@@ -5,9 +5,7 @@ from typing import Tuple
 
 import cv2
 import numpy as np
-import skimage
 from scipy import misc
-from scipy.misc import imresize
 from scipy.ndimage.interpolation import zoom
 from scipy.stats import wasserstein_distance
 from skimage import transform
@@ -16,7 +14,6 @@ from rendkit import pfm
 from toolbox.stats import find_outliers
 
 logger = logging.getLogger(__name__)
-
 
 BoundingBox = Tuple[int, int, int, int]
 
@@ -33,6 +30,18 @@ QUAL_COLORS = [
     (106, 61, 154),
     (255, 255, 153),
     (177, 89, 40),
+    (141, 211, 199),
+    (255, 255, 179),
+    (190, 186, 218),
+    (251, 128, 114),
+    (128, 177, 211),
+    (253, 180, 98),
+    (179, 222, 105),
+    (252, 205, 229),
+    (217, 217, 217),
+    (188, 128, 189),
+    (204, 235, 197),
+    (255, 237, 111),
 ]
 
 
@@ -316,8 +325,12 @@ def visualize_map(image, bg_value=-1):
     assert len(image.shape) == 2
     output = np.ones((*image.shape, 3))
     values = [v for v in np.unique(image) if v != bg_value]
+    if len(values) > len(QUAL_COLORS):
+        logger.warning('Qualitative colors will wrap around since there are '
+                       '%d values to map.', len(values))
+
     for i, value in enumerate(values):
-        color = (np.array(QUAL_COLORS[i]) / 255.0
+        color = (np.array(QUAL_COLORS[i % len(QUAL_COLORS)]) / 255.0
                  if value != bg_value
                  else (0, 0, 0))
         output[image == value] = color
