@@ -1,7 +1,7 @@
 import logging
 import math
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 
 import cv2
 import numpy as np
@@ -294,7 +294,7 @@ def save_hdr(path: Path, image):
         raise RuntimeError("Unknown format {}".format(ext))
 
 
-def load_hdr(path: Path, ext=None):
+def load_hdr(path: Union[Path, str], ext=None):
     if isinstance(path, str):
         path = Path(path)
 
