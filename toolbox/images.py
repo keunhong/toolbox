@@ -318,7 +318,8 @@ def crop_bbox(image, bbox):
 
 def mask_bbox(mask):
     yinds, xinds = np.where(mask)
-    return np.min(yinds), np.max(yinds), np.min(xinds), np.max(xinds)
+    bbox = np.min(yinds), np.max(yinds), np.min(xinds), np.max(xinds)
+    return tuple(int(i) for i in bbox)
 
 
 def visualize_map(image, bg_value=-1):

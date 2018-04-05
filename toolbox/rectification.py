@@ -88,7 +88,8 @@ def apply_rectify_tform(image, tform, height, width):
         image = image.astype(dtype=float)
         image = (image - im_min) / (im_max - im_min)
     rectified_image = transform.warp(
-        image, inverse_map=tform, output_shape=(int(height), int(width)))
+        image, inverse_map=tform, output_shape=(int(height), int(width)),
+        order=3)
     if im_min < -1 or im_max > 1:
         rectified_image = rectified_image * (im_max - im_min) + im_min
     return rectified_image.astype(dtype=dtype)
