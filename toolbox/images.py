@@ -322,7 +322,7 @@ def mask_bbox(mask):
     return tuple(int(i) for i in bbox)
 
 
-def visualize_map(image, bg_value=-1):
+def visualize_map(image, bg_value=-1, return_legends=False):
     assert len(image.shape) == 2
     output = np.ones((*image.shape, 3))
     values = [v for v in np.unique(image) if v != bg_value]
@@ -330,11 +330,18 @@ def visualize_map(image, bg_value=-1):
         logger.warning('Qualitative colors will wrap around since there are '
                        '%d values to map.', len(values))
 
+    legends = {}
+
     for i, value in enumerate(values):
-        color = (np.array(QUAL_COLORS[i % len(QUAL_COLORS)]) / 255.0
-                 if value != bg_value
-                 else (0, 0, 0))
-        output[image == value] = color
+        color = QUAL_COLORS[i % len(QUAL_COLORS)]
+        output[image == value] = (np.array(color) / 255.0
+                                  if value != bg_value
+                                  else (0, 0, 0))
+        if return_legends and value != bg_value:
+            legends[value] = color
+
+    if return_legends:
+        return output, legends
     return output
 
 
