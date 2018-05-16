@@ -349,7 +349,6 @@ def visualize_map(image, bg_value=-1,
     for i, value in enumerate(values):
         color = QUAL_COLORS[i % len(QUAL_COLORS)]
         output[image == value] = np.array(color) / 255.0
-        print(np.unique(image))
         if return_legends and value != bg_value:
             legends[value] = color
     output[image == bg_value] = bg_color
