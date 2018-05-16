@@ -104,7 +104,15 @@ def pad(image: np.ndarray,
     else:
         raise RuntimeError("Unsupported image shape {}".format(image.shape))
 
-    return np.pad(image, pad_width=padding, mode=mode, constant_values=fill)
+    if mode == 'constant':
+        return np.pad(image, pad_width=padding, mode=mode, constant_values=fill)
+    else:
+        return np.pad(image, pad_width=padding, mode=mode)
+
+
+def unpad(image, padding):
+    h, w = image.shape[:2]
+    return image[padding:h-padding, padding:w-padding]
 
 
 def rotate(image: np.ndarray, angle: float, crop=False) -> np.ndarray:
@@ -213,7 +221,7 @@ def reinhard_inverse(image_ldr, thres):
 
 def bright_pixel_mask(image, percentile=80):
     perc = np.percentile(np.unique(image[:, :, :3].min(axis=2)), percentile)
-    mask = np.all(image < perc, axis=-1)
+    mask = np.any(image < perc, axis=-1)
     return mask
 
 
@@ -322,10 +330,16 @@ def mask_bbox(mask):
     return tuple(int(i) for i in bbox)
 
 
-def visualize_map(image, bg_value=-1, return_legends=False):
+def visualize_map(image, bg_value=-1,
+                  bg_color=(1.0, 1.0, 1.0),
+                  return_legends=False,
+                  values=None):
     assert len(image.shape) == 2
-    output = np.ones((*image.shape, 3))
-    values = [v for v in np.unique(image) if v != bg_value]
+    output = np.ones((*image.shape, 3), dtype=float)
+    if values is None:
+        values = np.unique(image)
+        values = [v for v in values if v != bg_value]
+
     if len(values) > len(QUAL_COLORS):
         logger.warning('Qualitative colors will wrap around since there are '
                        '%d values to map.', len(values))
@@ -334,11 +348,11 @@ def visualize_map(image, bg_value=-1, return_legends=False):
 
     for i, value in enumerate(values):
         color = QUAL_COLORS[i % len(QUAL_COLORS)]
-        output[image == value] = (np.array(color) / 255.0
-                                  if value != bg_value
-                                  else (0, 0, 0))
+        output[image == value] = np.array(color) / 255.0
+        print(np.unique(image))
         if return_legends and value != bg_value:
             legends[value] = color
+    output[image == bg_value] = bg_color
 
     if return_legends:
         return output, legends
