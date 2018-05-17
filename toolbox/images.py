@@ -44,6 +44,13 @@ QUAL_COLORS = [
     (255, 237, 111),
 ]
 
+KELLY_COLORS = [(243, 195, 0), (135, 86, 146),
+                (243, 132, 0), (161, 202, 241), (190, 0, 50), (194, 178, 128),
+                (132, 132, 130), (0, 136, 86), (230, 143, 172), (0, 103, 165),
+                (249, 147, 121), (96, 78, 151), (246, 166, 0), (179, 68, 108),
+                (220, 211, 0), (136, 45, 23), (141, 182, 0), (101, 69, 34),
+                (226, 88, 34), (43, 61, 38)]
+
 
 def is_img(path):
     img_types = ['png', 'tiff', 'tif', 'jpg', 'gif', 'jpeg']
@@ -112,7 +119,7 @@ def pad(image: np.ndarray,
 
 def unpad(image, padding):
     h, w = image.shape[:2]
-    return image[padding:h-padding, padding:w-padding]
+    return image[padding:h - padding, padding:w - padding]
 
 
 def rotate(image: np.ndarray, angle: float, crop=False) -> np.ndarray:
@@ -122,8 +129,8 @@ def rotate(image: np.ndarray, angle: float, crop=False) -> np.ndarray:
         length = math.sqrt(2) * radius
         height, width = image.shape[:2]
         rotated = rotated[
-                  height/2-length/2:height/2+length/2,
-                  width/2-length/2:width/2+length/2]
+                  height / 2 - length / 2:height / 2 + length / 2,
+                  width / 2 - length / 2:width / 2 + length / 2]
     return rotated
 
 
@@ -165,7 +172,7 @@ def trim_image(image, mask):
 
 def suppress_outliers(image, thres=3.5, preserve_dark=True):
     new_map = image.copy()
-    outliers = find_outliers(np.reshape(image, (-1, 3)), thres=thres)\
+    outliers = find_outliers(np.reshape(image, (-1, 3)), thres=thres) \
         .reshape(image.shape[:2])
     med = np.median(image, axis=(0, 1))
     if preserve_dark:
@@ -215,7 +222,7 @@ def reinhard(image_hdr, thres):
 def reinhard_inverse(image_ldr, thres):
     Lw = thres
     Ld = image_ldr
-    rt = np.sqrt(Lw) * np.sqrt(Lw * (Ld - 1)**2 + 4 * Ld)
+    rt = np.sqrt(Lw) * np.sqrt(Lw * (Ld - 1) ** 2 + 4 * Ld)
     return Lw * (Ld - 1) + rt
 
 
@@ -331,23 +338,24 @@ def mask_bbox(mask):
 
 
 def visualize_map(image, bg_value=-1,
-                  bg_color=(1.0, 1.0, 1.0),
+                  bg_color=(0.13, 0.13, 0.13),
                   return_legends=False,
-                  values=None):
+                  values=None,
+                  color_list=KELLY_COLORS):
     assert len(image.shape) == 2
     output = np.ones((*image.shape, 3), dtype=float)
     if values is None:
         values = np.unique(image)
         values = [v for v in values if v != bg_value]
 
-    if len(values) > len(QUAL_COLORS):
+    if len(values) > len(color_list):
         logger.warning('Qualitative colors will wrap around since there are '
                        '%d values to map.', len(values))
 
     legends = {}
 
     for i, value in enumerate(values):
-        color = QUAL_COLORS[i % len(QUAL_COLORS)]
+        color = color_list[i % len(color_list)]
         output[image == value] = np.array(color) / 255.0
         if return_legends and value != bg_value:
             legends[value] = color
@@ -391,4 +399,3 @@ def srgb_to_linear(srgb):
 
 def to_8bit(image):
     return np.clip(image * 255, 0, 255).astype('uint8')
-
