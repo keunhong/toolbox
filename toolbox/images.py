@@ -223,6 +223,13 @@ def save_image(path, array):
     misc.imsave(path, array)
 
 
+def imread2(path):
+    path = Path(path)
+    if path.suffix in {'.hdr', '.exr'}:
+        return load_hdr(path)
+    return load_image(path)
+
+
 def load_image(path, mode='RGB'):
     image = misc.imread(path, mode=mode)
     image = image.astype(dtype=np.float32) / 255.0

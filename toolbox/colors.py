@@ -1,6 +1,8 @@
 import logging
 
 import numpy as np
+from scipy.ndimage.filters import gaussian_filter
+
 from skimage.color import rgb2lab
 import skimage.io
 
@@ -38,13 +40,14 @@ def lab_rgb_gamut_bin_mask(num_bins=(10, 10, 10)):
     bin_edges_b = np.linspace(-110, 100, num_bins[2] + 1, endpoint=True)
     edges = (bin_edges_L, bin_edges_a, bin_edges_b)
 
-    cache_name = \
-        f'lab_rgb_gamut_bin_mask_{num_bins[0]}_{num_bins[1]}_{num_bins[2]}.png'
+    cache_name = (f'lab_rgb_gamut_bin_mask'
+                  f'_{num_bins[0]}_{num_bins[1]}_{num_bins[2]}.png')
     cache_path = caching.get_path(cache_name)
 
     if caching.exists(cache_name):
-        valid_bin_mask = \
-            skimage.io.imread(cache_path).reshape(num_bins).astype(bool)
+        valid_bin_mask = (skimage.io.imread(cache_path)
+                          .reshape(num_bins)
+                          .astype(bool))
     else:
         print(f'Computing {cache_name}')
 
@@ -62,3 +65,18 @@ def lab_rgb_gamut_bin_mask(num_bins=(10, 10, 10)):
         skimage.io.imsave(cache_path, valid_bin_mask.reshape(-1, 1))
 
     return valid_bin_mask, edges
+
+
+def compute_lab_histogram(image_rgb, num_bins, sigma=0.5):
+    if isinstance(image_rgb, tuple):
+        image_rgb = np.array(image_rgb).reshape(1, 1, 3)
+
+    image_lab = skimage.color.rgb2lab(image_rgb)
+
+    valid_bin_mask, bin_edges = lab_rgb_gamut_bin_mask(num_bins)
+    hist, hist_edges = np.histogramdd(image_lab.reshape(-1, 3), bin_edges)
+    hist = gaussian_filter(hist, sigma=sigma)
+
+    bin_dist = hist[valid_bin_mask]
+    bin_dist /= bin_dist.sum()
+    return bin_dist
