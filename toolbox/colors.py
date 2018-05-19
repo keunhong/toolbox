@@ -80,3 +80,11 @@ def compute_lab_histogram(image_rgb, num_bins, sigma=0.5):
     bin_dist = hist[valid_bin_mask]
     bin_dist /= bin_dist.sum()
     return bin_dist
+
+
+def visualize_color_hist(hist, num_bins):
+    hist_vis = np.zeros(num_bins)
+    valid_bin_mask, _ = lab_rgb_gamut_bin_mask(num_bins)
+    hist_vis[valid_bin_mask] = hist
+    return hist_vis
+
