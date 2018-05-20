@@ -82,7 +82,22 @@ def compute_lab_histogram(image_rgb, num_bins, sigma=0.5):
     return bin_dist
 
 
-def visualize_color_hist(hist, num_bins):
+def compute_rgb_histogram(image_rgb, num_bins, sigma=0.5):
+    if isinstance(image_rgb, tuple):
+        image_rgb = np.array(image_rgb).reshape(1, 1, 3)
+
+    edges = np.linspace(0, 1, num_bins + 1, endpoint=True)
+    bin_edges = (edges, edges, edges)
+
+    hist, hist_edges = np.histogramdd(image_rgb.reshape(-1, 3), bin_edges)
+    hist = gaussian_filter(hist, sigma=sigma)
+    hist /= hist.sum()
+
+    return hist
+
+
+
+def visualize_lab_color_hist(hist, num_bins):
     hist_vis = np.zeros(num_bins)
     valid_bin_mask, _ = lab_rgb_gamut_bin_mask(num_bins)
     hist_vis[valid_bin_mask] = hist
