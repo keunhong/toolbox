@@ -99,7 +99,6 @@ def compute_rgb_histogram(image_rgb, num_bins, sigma=0.5):
     return hist
 
 
-
 def visualize_lab_color_hist(hist, num_bins):
     hist_vis = np.zeros(num_bins)
     valid_bin_mask, _ = lab_rgb_gamut_bin_mask(num_bins)
