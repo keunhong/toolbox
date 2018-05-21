@@ -86,8 +86,11 @@ def compute_rgb_histogram(image_rgb, num_bins, sigma=0.5):
     if isinstance(image_rgb, tuple):
         image_rgb = np.array(image_rgb).reshape(1, 1, 3)
 
-    edges = np.linspace(0, 1, num_bins + 1, endpoint=True)
-    bin_edges = (edges, edges, edges)
+    bin_edges = (
+        np.linspace(0, 1, num_bins[0] + 1, endpoint=True),
+        np.linspace(0, 1, num_bins[1] + 1, endpoint=True),
+        np.linspace(0, 1, num_bins[2] + 1, endpoint=True),
+    )
 
     hist, hist_edges = np.histogramdd(image_rgb.reshape(-1, 3), bin_edges)
     hist = gaussian_filter(hist, sigma=sigma)
