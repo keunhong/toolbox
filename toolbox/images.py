@@ -5,6 +5,7 @@ from typing import Tuple, Union
 
 import cv2
 import numpy as np
+from PIL import Image
 from scipy import misc
 from scipy.ndimage.interpolation import zoom
 from scipy.stats import wasserstein_distance
@@ -348,8 +349,20 @@ def load_hdr(path: Union[Path, str], ext=None):
     return im
 
 
+def clamp_bbox(bbox, shape):
+    height, width = shape
+    return (max(0, min(height, bbox[0])),
+            max(0, min(height, bbox[1])),
+            max(0, min(width, bbox[2])),
+            max(0, min(width, bbox[3])))
+
+
 def crop_bbox(image, bbox):
-    return image[bbox[0]:bbox[1], bbox[2]:bbox[3]]
+    if isinstance(image, np.ndarray):
+        return image[bbox[0]:bbox[1], bbox[2]:bbox[3]]
+    elif hasattr(image, 'crop'):
+        box = (bbox[2], bbox[0], bbox[3], bbox[1])
+        return image.crop(box=box)
 
 
 def mask_bbox(mask):
