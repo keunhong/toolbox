@@ -69,7 +69,7 @@ def lab_rgb_gamut_bin_mask(num_bins=(10, 10, 10)):
 
 def compute_lab_histogram(image_rgb, num_bins, sigma=0.5):
     if isinstance(image_rgb, tuple):
-        image_rgb = np.array(image_rgb).reshape(1, 1, 3)
+        image_rgb = np.array(image_rgb, dtype=np.uint8).reshape(1, 1, 3)
 
     image_lab = skimage.color.rgb2lab(image_rgb)
 
