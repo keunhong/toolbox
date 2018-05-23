@@ -59,7 +59,7 @@ def lab_rgb_gamut_bin_mask(num_bins=(10, 10, 10)):
             lab_rgb_gamut.reshape(-1, 3),
             (bin_edges_L, bin_edges_a, bin_edges_b))
 
-        valid_bin_mask = lab_rgb_gamut_hist > 0
+        valid_bin_mask = (lab_rgb_gamut_hist > 0).astype(np.uint8) * 255
 
         print(f'Saving {cache_name}')
         skimage.io.imsave(cache_path, valid_bin_mask.reshape(-1, 1))
