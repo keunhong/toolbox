@@ -79,7 +79,8 @@ def compute_lab_histogram(image_rgb, num_bins, sigma=0.5):
     hist = gaussian_filter(hist, sigma=sigma)
 
     bin_dist = hist[valid_bin_mask]
-    bin_dist /= bin_dist.sum()
+    if bin_dist.sum() > 0:
+        bin_dist /= bin_dist.sum()
     return bin_dist
 
 
@@ -95,7 +96,8 @@ def compute_rgb_histogram(image_rgb, num_bins, sigma=0.5):
 
     hist, hist_edges = np.histogramdd(image_rgb.reshape(-1, 3), bin_edges)
     hist = gaussian_filter(hist, sigma=sigma)
-    hist /= hist.sum()
+    if hist.sum() > 0:
+        hist /= hist.sum()
 
     return hist
 
