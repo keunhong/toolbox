@@ -1,17 +1,12 @@
 import logging
 import math
-from pathlib import Path
-from typing import Tuple, Union
+from typing import Tuple
 
-import cv2
 import numpy as np
-from PIL import Image
-from scipy import misc
 from scipy.ndimage.interpolation import zoom
 from scipy.stats import wasserstein_distance
 from skimage import transform
 
-from rendkit import pfm
 from toolbox.stats import find_outliers
 
 logger = logging.getLogger(__name__)
@@ -65,14 +60,6 @@ QUAL_COLORS = [
     (204, 235, 197),
     (255, 237, 111),
 ]
-
-
-def is_img(path):
-    img_types = ['png', 'tiff', 'tif', 'jpg', 'gif', 'jpeg']
-    for t in img_types:
-        if str(path).lower().endswith(t):
-            return True
-    return False
 
 
 def compute_segment_median_colors(image: np.ndarray, segment_mask: np.ndarray):
@@ -216,27 +203,6 @@ def resize(array, shape, order=3):
     return output.clip(array.min(), array.max())
 
 
-def save_image(path, array):
-    if array.dtype == np.uint8:
-        array = array.astype(dtype=float)
-        array /= 255.0
-    array = np.round(np.clip(array, 0.0, 1.0) * 255.0).astype(dtype=np.uint8)
-    misc.imsave(path, array)
-
-
-def imread2(path):
-    path = Path(path)
-    if path.suffix in {'.hdr', '.exr'}:
-        return load_hdr(path)
-    return load_image(path)
-
-
-def load_image(path, mode='RGB'):
-    image = misc.imread(path, mode=mode)
-    image = image.astype(dtype=np.float32) / 255.0
-    return image
-
-
 def reinhard(image_hdr, thres):
     return image_hdr * (1 + image_hdr / thres ** 2) / (1 + image_hdr)
 
@@ -307,46 +273,6 @@ def crop_tight_fg(image, shape=None, bbox=None, fill=1.0, order=3,
         output = resize(output, shape, order=order)
     output = np.clip(output, image.min(), image.max())
     return output.squeeze()
-
-
-def save_arr(path, arr):
-    np.savez(path, arr)
-
-
-def load_arr(path):
-    return np.load(path)['arr_0'][()]
-
-
-def save_hdr(path: Path, image):
-    if isinstance(path, str):
-        path = Path(path)
-    ext = path.suffix[1:]
-    if ext == 'exr':
-        if len(image.shape) == 3:
-            image = image[:, :, [2, 1, 0]]
-        cv2.imwrite(str(path), image)
-    elif ext == 'pfm':
-        pfm.pfm_save(str(path))
-    else:
-        raise RuntimeError("Unknown format {}".format(ext))
-
-
-def load_hdr(path: Union[Path, str], ext=None):
-    if isinstance(path, str):
-        path = Path(path)
-
-    if ext is None:
-        ext = path.suffix[1:]
-    if ext in {'exr', 'hdr'}:
-        import cv2
-        im = cv2.imread(str(path), -1)
-        if len(im.shape) == 3:
-            im = im[:, :, [2, 1, 0]]
-    elif ext == 'pfm':
-        im = pfm.pfm_read(path)
-    else:
-        raise RuntimeError("Unknown format {}".format(ext))
-    return im
 
 
 def clamp_bbox(bbox, shape):
