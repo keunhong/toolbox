@@ -3,9 +3,16 @@ LICENSE.txt
 README
 setup.py
 toolbox/__init__.py
+toolbox/caching.py
+toolbox/cameras.py
 toolbox/colors.py
 toolbox/func.py
-toolbox/im3d.py
+toolbox/graphics.py
 toolbox/images.py
+toolbox/logging.py
+toolbox/masks.py
 toolbox/misc.py
+toolbox/rectification.py
 toolbox/stats.py
+toolbox/vector.py
+toolbox/web.py
