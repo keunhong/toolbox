@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'toolbox',
   packages = ['toolbox'], 
-  version = '0.2',
+  version = '0.3',
   description = 'Tools for python. So descriptive, huh?',
   author = 'Keunhong Park',
   author_email = 'kpar@cs.washington.edu',
